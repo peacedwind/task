@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from selenium import webdriver
@@ -25,7 +26,7 @@ def wallet_sign():
     driver.find_element(by=By.XPATH, value='//div[text()="确认"]').click()
     switch_new_win()
 def get_privite_key():
-    return '0x0d1489ee59ff8d627b4bcf896a0fd899e68610dc48afa98eec7ea3c4b43d6725'
+    return '0x57fc1bd655e10eef94011097eb3b24f90a3c2435c527ced7f4fb4ebfaac3247c'
 
 
 def get_wallet_password():
@@ -148,8 +149,14 @@ for i in range(3):
     except:
         pass
 # 确认
-driver.find_element(by=By.XPATH,value='//div[text()="确认"]').click()
-time.sleep(1)
+switch_new_win()
+for i in range(3):
+    try:
+        driver.find_element(by=By.XPATH,value='//div[text()="确认"]').click()
+    except:
+        pass
+time.sleep(10)
+print('签到完成')
 driver.close()
 
 
