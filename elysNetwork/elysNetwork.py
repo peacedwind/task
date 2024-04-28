@@ -81,7 +81,7 @@ def swap():
         driver.execute_script(js)
 
         usdc = '0.01'
-        print("swap任务, 交易金额: " + usdc)
+        print("swap任务, 交易USDC: " + usdc)
 
         time.sleep(5)
         driver.switch_to.window(driver.window_handles[1])
@@ -111,7 +111,7 @@ def stake():
         time.sleep(5)
 
         elys = '0.01'
-        print("开始质押Elys, 数量: " + elys)
+        print("质押Elys, 数量: " + elys)
         
         manageButton = driver.find_elements(By.XPATH, '//button[text()="Manage"]')
         manageButton[1].click()
@@ -134,7 +134,7 @@ def stake():
 
 
 def add_liquidity():
-    print("开始增加流动性")
+    print("增加流动性任务")
     try:
         driver.get("https://testnet.elys.network/earn/mining")
 
@@ -207,13 +207,13 @@ def refer():
         refer()
 
 
-wallet = KelprWallet('0x06109c5b948ac43020a630ab49fef16a1443df97bb622283dc8c1f71cacd1cfb', 'Keplr', 'ccsu00001')
+wallet = KelprWallet('--', 'Keplr', 'ccsu00001')
 driver = wallet.do_import()
 
 #https://elys.bonusblock.io?r=Bx9DYyYP
 driver._switch_to.window(driver.window_handles[0])
 refer()
-'''
+
 #登录
 sign_in()
 
@@ -238,4 +238,4 @@ time.sleep(30)
 add_liquidity()
 
 print("脚本执行完毕")
-'''
+
