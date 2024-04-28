@@ -68,10 +68,10 @@ def claim_deposit():
         time.sleep(1)
         claim_deposit()
 
-    claim = driver.find_elements(By.XPATH, '//button[text()="Claiming Tokens"]')
-    if (len(claim)) == 1:
-        driver.refresh()
-        claim_deposit()
+    #claim = driver.find_elements(By.XPATH, '//button[text()="Claim Tokens"]')
+    #if (len(claim)) == 1:
+        #driver.refresh()
+        #claim_deposit()
 
 
 def swap():
@@ -100,6 +100,7 @@ def swap():
     except Exception as e:
         print("交易时网络异常, 重新执行")
         clean_chrome_extension()
+        driver.close()
         time.sleep(3)
         swap()
 
@@ -188,11 +189,31 @@ def sign_in():
         sign_in()
         
 
-wallet = KelprWallet('0xc12e5c9611b1854d2fb2180a2c4f9ec2bb91168226799d68b157941cf573937b', 'Keplr测试钱包', 'mjh10000643')
+def refer():
+    try:
+        driver.get("https://elys.bonusblock.io?r=Bx9DYyYP")
+        time.sleep(5)
+
+        keplr = driver.find_element(By.XPATH, '//div[text()="Connect with Keplr"]')
+        keplr.click()
+
+        time.sleep(15)
+        confirm_chrome_extesion()
+
+        time.sleep(15)
+        confirm_chrome_extesion()
+    except Exception as e:
+        print("网络异常,重新连接")
+        refer()
+
+
+wallet = KelprWallet('0x06109c5b948ac43020a630ab49fef16a1443df97bb622283dc8c1f71cacd1cfb', 'Keplr', 'ccsu00001')
 driver = wallet.do_import()
 
 #https://elys.bonusblock.io?r=Bx9DYyYP
 driver._switch_to.window(driver.window_handles[0])
+refer()
+'''
 #登录
 sign_in()
 
@@ -217,3 +238,4 @@ time.sleep(30)
 add_liquidity()
 
 print("脚本执行完毕")
+'''

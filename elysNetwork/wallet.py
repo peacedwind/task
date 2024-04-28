@@ -17,8 +17,7 @@ class KelprWallet():
         chrome_options.add_extension('crx/keplr.crx')
         driver = webdriver.Chrome(options=chrome_options)
 
-        driver = webdriver.Chrome(options=chrome_options)
-        time.sleep(7)
+        time.sleep(5)
 
         for wh in driver.window_handles:
             driver._switch_to.window(wh)
@@ -72,7 +71,7 @@ class KelprWallet():
 
 
 #wallet = KelprWallet('0xc12e5c9611b1854d2fb2180a2c4f9ec2bb91168226799d68b157941cf573937b', '钱包1', 'mjh10000643')
-#driver = wallet.connect()
+#driver = wallet.do_import()
 
 #print(driver.window_handles)
 
