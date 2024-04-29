@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.proxy import Proxy, ProxyType
 import time
 
 
@@ -43,9 +44,10 @@ class KelprWallet():
         privateKeyInput = driver.find_element(By.TAG_NAME, 'input')
         privateKeyInput.send_keys(self.private_key) #私钥
         
-        time.sleep(1)
+        time.sleep(2)
         privateKeyInputConfirm = driver.find_element(By.XPATH, '//button[@type="submit"]')
-        privateKeyInputConfirm.click()
+        if privateKeyInputConfirm.is_enabled() and privateKeyInputConfirm.is_displayed():
+            privateKeyInputConfirm.click()
 
         #钱包设置
         time.sleep(1)
@@ -74,5 +76,3 @@ class KelprWallet():
 #driver = wallet.do_import()
 
 #print(driver.window_handles)
-
-

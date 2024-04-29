@@ -3,10 +3,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from wallet import KelprWallet
+import concurrent.futures
 import time
+import sys
+import random
+import string
+import threading
 
 
-def clean_chrome_extension():
+def clean_chrome_extension(driver):
     curWindows = driver.current_window_handle
     for wh in driver.window_handles:
         driver._switch_to.window(wh)
@@ -17,7 +22,7 @@ def clean_chrome_extension():
     driver._switch_to.window(curWindows)
     
 
-def confirm_chrome_extesion():
+def confirm_chrome_extesion(driver):
     print("处理钱包插件弹窗...")
     curWindows = driver.current_window_handle
     for wh in driver.window_handles:
@@ -32,7 +37,7 @@ def confirm_chrome_extesion():
     driver._switch_to.window(curWindows)
 
 
-def approve():
+def approve(driver):
     print("交易确认...")
     curWindows = driver.current_window_handle
     for wh in driver.window_handles:
@@ -47,7 +52,7 @@ def approve():
     driver._switch_to.window(curWindows)
 
 
-def claim_deposit():
+def claim_deposit(driver):
     print("开始领取测试币")
     try:   
         deposit = driver.find_element(By.XPATH, '//button[text()="Deposit"]')
@@ -66,7 +71,7 @@ def claim_deposit():
     except Exception as e:
         print("领取失败, 准备重试")
         time.sleep(1)
-        claim_deposit()
+        claim_deposit(driver)
 
     #claim = driver.find_elements(By.XPATH, '//button[text()="Claim Tokens"]')
     #if (len(claim)) == 1:
@@ -74,7 +79,7 @@ def claim_deposit():
         #claim_deposit()
 
 
-def swap():
+def swap(driver):
     try:
         js='window.open("https://testnet.elys.network/swap#USDC/ELYS");'
 
@@ -83,28 +88,36 @@ def swap():
         usdc = '0.01'
         print("swap任务, 交易USDC: " + usdc)
 
-        time.sleep(5)
+        time.sleep(8)
+        
         driver.switch_to.window(driver.window_handles[1])
+        balance = driver.find_elements(By.XPATH, '//span[text()="0"]')
+        if (len(balance) == 2):
+            print("usdc余额不足, 程序终止")
+            return -1
 
         time.sleep(8)
         inputs = driver.find_elements(By.TAG_NAME, 'input')
         time.sleep(1)
         inputs[0].send_keys(usdc)
 
-        time.sleep(3)
+        time.sleep(5)
         receive = driver.find_element(By.XPATH, '//button[text()="Receive ELYS"]')
         receive.click()
 
         time.sleep(15)
-        approve()
+        approve(driver)
+        return 0
     except Exception as e:
+        print(e)
         print("交易时网络异常, 重新执行")
         clean_chrome_extension()
         driver.close()
+        driver.switch_to.window(driver.window_handles[0])
         time.sleep(3)
-        swap()
+        return swap(driver)
 
-def stake():
+def stake(driver):
     try:   
         driver.get("https://testnet.elys.network/earn/staking")
 
@@ -125,15 +138,15 @@ def stake():
         manageButton.click()
 
         time.sleep(15)
-        approve()
+        approve(driver)
     except Exception as e:
         print("质押网络异常, 重新执行")
         clean_chrome_extension()
         time.sleep(3)
-        stake()
+        stake(driver)
 
 
-def add_liquidity():
+def add_liquidity(driver):
     print("增加流动性任务")
     try:
         driver.get("https://testnet.elys.network/earn/mining")
@@ -151,36 +164,38 @@ def add_liquidity():
         button.click()
 
         time.sleep(15)
-        approve()
+        approve(driver)
     except Exception as e:
         #print(e)
         print("增加流动性网络异常, 重新执行")
         clean_chrome_extension()
         time.sleep(3)
-        add_liquidity()
+        add_liquidity(driver)
 
 
-def sign_in():
+def sign_in(driver):
     driver.get("https://testnet.elys.network")
-    time.sleep(5)
+    time.sleep(random.randint(5, 10))
     try:
         signIn = driver.find_element(By.XPATH, '//a[text()="Sign In"]')
         signIn.click()
 
-        time.sleep(2)
+        time.sleep(random.randint(2, 10))
         button = driver.find_element(By.XPATH, '//span[text()="Connect with Wallet"]/..')
         button.click()
 
-        time.sleep(3)
+        time.sleep(random.randint(3, 10))
         button = driver.find_element(By.XPATH, '//span[text()="Keplr"]/../..')
         button.click()
 
-        time.sleep(8)
-        confirm_chrome_extesion()
+        time.sleep(random.randint(8, 10))
+        confirm_chrome_extesion(driver)
     except Exception as e:
+        print(e)
         print("钱包登录异常, 准备重试")
         time.sleep(3)
-        sign_in()
+        sign_in(driver)
+        return
 
     time.sleep(15)
     buttons = driver.find_elements(By.XPATH, '//a[text()="Sign In"]')
@@ -189,30 +204,79 @@ def sign_in():
         sign_in()
         
 
-def refer():
+def refer(driver):
     try:
         driver.get("https://elys.bonusblock.io?r=Bx9DYyYP")
-        time.sleep(5)
+        time.sleep(random.randint(5, 60))
 
         keplr = driver.find_element(By.XPATH, '//div[text()="Connect with Keplr"]')
         keplr.click()
 
         time.sleep(15)
-        confirm_chrome_extesion()
+        confirm_chrome_extesion(driver)
 
         time.sleep(15)
-        confirm_chrome_extesion()
+        confirm_chrome_extesion(driver)
     except Exception as e:
         print("网络异常,重新连接")
-        refer()
+        refer(driver)
 
 
-wallet = KelprWallet('--', 'Keplr', 'ccsu00001')
+def job_start(private_key):
+    thread_name = threading.current_thread().getName()
+    print("线程" + thread_name + "开始执行")
+    
+    letters = string.ascii_letters  # 包含所有字母的字符串
+    random_string = ''.join(random.choice(letters) for _ in range(10))
+    wallet = KelprWallet(private_key, random_string, random_string)
+    driver = wallet.do_import()
+    driver._switch_to.window(driver.window_handles[0])
+    driver.maximize_window()
+
+    #refer(driver)
+    time.sleep(10)
+            
+    #登录
+    sign_in(driver)
+
+    time.sleep(10)
+
+    #领水
+    claim_deposit(driver)
+
+    time.sleep(10)
+
+    #交易
+    res = swap(driver)
+    if res == -1:
+        return
+            
+    time.sleep(30)
+
+    #质押
+    stake(driver)
+                
+    time.sleep(30)
+
+    #增加流通性
+    add_liquidity(driver)
+
+with open('wallet.txt', 'r') as f:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        for line in f:
+            executor.submit(job_start, line)
+            
+    executor.shutdown(wait=True)
+    print("脚本执行完毕")
+
+'''
+wallet = KelprWallet('0x4089c7f7ae1b9a6f8111373fd55318658f040fca6d104d41ab82075a6434f74b', 'Keplr12321431', 'Ker000002')
 driver = wallet.do_import()
 
 #https://elys.bonusblock.io?r=Bx9DYyYP
 driver._switch_to.window(driver.window_handles[0])
-refer()
+driver.maximize_window()
+#refer()
 
 #登录
 sign_in()
@@ -238,4 +302,4 @@ time.sleep(30)
 add_liquidity()
 
 print("脚本执行完毕")
-
+'''
