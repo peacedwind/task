@@ -81,16 +81,17 @@ def claim_deposit(driver):
 
 def swap(driver):
     try:
-        js='window.open("https://testnet.elys.network/swap#USDC/ELYS");'
+        js='window.open("https://testnet.elys.network/swap#ELYS/USDC");'
 
         driver.execute_script(js)
 
-        usdc = '0.01'
-        print("swap任务, 交易USDC: " + usdc)
+        usdc = '0.001'
+        print("swap任务, 交易ELYS: " + usdc)
 
         time.sleep(random.randint(8, 15))
         
         driver.switch_to.window(driver.window_handles[1])
+        
         balance = driver.find_elements(By.XPATH, '//span[text()="0"]')
         if (len(balance) == 2):
             return -1
@@ -101,7 +102,7 @@ def swap(driver):
         inputs[0].send_keys(usdc)
 
         time.sleep(5)
-        receive = driver.find_element(By.XPATH, '//button[text()="Receive ELYS"]')
+        receive = driver.find_element(By.XPATH, '//button[text()="Receive USDC"]')
         receive.click()
 
         time.sleep(random.randint(10, 16))
