@@ -12,14 +12,14 @@ import threading
 
 
 def clean_chrome_extension(driver):
-    curWindows = driver.current_window_handle
+    #curWindows = driver.current_window_handle
     for wh in driver.window_handles:
         driver._switch_to.window(wh)
         if "chrome-extension" in driver.current_url:
             driver.close()
             break
-    
-    driver._switch_to.window(curWindows)
+
+    driver._switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
     
 
 def confirm_chrome_extesion(driver):
@@ -67,7 +67,7 @@ def claim_deposit(driver):
         claim = driver.find_element(By.XPATH, '//button[text()="Claim Tokens"]')
         claim.click()
 
-        time.sleep(30) #等待领取完成
+        time.sleep(random.randint(25, 30)) #等待领取完成
     except Exception as e:
         print("领取失败, 准备重试")
         time.sleep(1)
@@ -88,15 +88,14 @@ def swap(driver):
         usdc = '0.01'
         print("swap任务, 交易USDC: " + usdc)
 
-        time.sleep(8)
+        time.sleep(random.randint(8, 15))
         
         driver.switch_to.window(driver.window_handles[1])
         balance = driver.find_elements(By.XPATH, '//span[text()="0"]')
         if (len(balance) == 2):
-            print("usdc余额不足, 程序终止")
             return -1
 
-        time.sleep(8)
+        time.sleep(random.randint(8, 15))
         inputs = driver.find_elements(By.TAG_NAME, 'input')
         time.sleep(1)
         inputs[0].send_keys(usdc)
@@ -105,7 +104,7 @@ def swap(driver):
         receive = driver.find_element(By.XPATH, '//button[text()="Receive ELYS"]')
         receive.click()
 
-        time.sleep(15)
+        time.sleep(random.randint(10, 16))
         approve(driver)
         return 0
     except Exception as e:
@@ -212,10 +211,10 @@ def refer(driver):
         keplr = driver.find_element(By.XPATH, '//div[text()="Connect with Keplr"]')
         keplr.click()
 
-        time.sleep(15)
+        time.sleep(random.randint(15, 20))
         confirm_chrome_extesion(driver)
 
-        time.sleep(15)
+        time.sleep(random.randint(15, 20))
         confirm_chrome_extesion(driver)
     except Exception as e:
         print("网络异常,重新连接")
@@ -223,7 +222,8 @@ def refer(driver):
 
 
 def job_start(private_key):
-    thread_name = threading.current_thread().getName()
+    time.sleep(1)
+    thread_name = threading.current_thread().name
     print("线程" + thread_name + "开始执行")
     
     letters = string.ascii_letters  # 包含所有字母的字符串
@@ -233,13 +233,13 @@ def job_start(private_key):
     driver._switch_to.window(driver.window_handles[0])
     driver.maximize_window()
 
-    #refer(driver)
-    time.sleep(10)
+    refer(driver)
+    time.sleep(random.randint(10, 30))
             
     #登录
     sign_in(driver)
 
-    time.sleep(10)
+    time.sleep(random.randint(10, 20))
 
     #领水
     claim_deposit(driver)
@@ -249,20 +249,26 @@ def job_start(private_key):
     #交易
     res = swap(driver)
     if res == -1:
+        print(private_key + "无余额")
         return
             
-    time.sleep(30)
+    time.sleep(random.randint(20, 35))
 
     #质押
     stake(driver)
                 
-    time.sleep(30)
+    time.sleep(random.randint(25, 35))
 
     #增加流通性
     add_liquidity(driver)
 
+    time.sleep(random.randint(25, 35))
+
+    print("线程" + thread_name + "执行完毕")
+    print(private_key + "======================>")
+
 with open('wallet.txt', 'r') as f:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         for line in f:
             executor.submit(job_start, line)
             
