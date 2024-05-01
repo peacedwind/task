@@ -141,7 +141,7 @@ def stake(driver):
         approve(driver)
     except Exception as e:
         print("质押网络异常, 重新执行")
-        clean_chrome_extension()
+        clean_chrome_extension(driver)
         time.sleep(3)
         stake(driver)
 
@@ -168,7 +168,7 @@ def add_liquidity(driver):
     except Exception as e:
         #print(e)
         print("增加流动性网络异常, 重新执行")
-        clean_chrome_extension()
+        clean_chrome_extension(driver)
         time.sleep(3)
         add_liquidity(driver)
 
@@ -225,7 +225,7 @@ def refer(driver):
 def job_start(private_key):
     time.sleep(1)
     thread_name = threading.current_thread().name
-    print("线程" + thread_name + "开始执行")
+    print("-----------线程" + thread_name + "开始执行-----------")
     
     letters = string.ascii_letters  # 包含所有字母的字符串
     random_string = ''.join(random.choice(letters) for _ in range(10))
@@ -250,7 +250,7 @@ def job_start(private_key):
     #交易
     res = swap(driver)
     if res == -1:
-        print(private_key + "无余额")
+        print(private_key + "无余额==================")
         return
             
     time.sleep(random.randint(20, 35))
@@ -266,7 +266,6 @@ def job_start(private_key):
     time.sleep(random.randint(25, 35))
 
     print("线程" + thread_name + "执行完毕")
-    print(private_key + "======================>")
 
 with open('wallet.txt', 'r') as f:
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
