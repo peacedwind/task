@@ -85,7 +85,7 @@ def swap(driver):
 
         driver.execute_script(js)
 
-        usdc = '0.001'
+        usdc = '0.003'
         print("swap任务, 交易ELYS: " + usdc)
 
         time.sleep(random.randint(8, 15))
@@ -123,7 +123,7 @@ def stake(driver):
 
         time.sleep(5)
 
-        elys = '0.01'
+        elys = '0.001'
         print("质押Elys, 数量: " + elys)
         
         manageButton = driver.find_elements(By.XPATH, '//button[text()="Manage"]')
@@ -156,8 +156,14 @@ def add_liquidity(driver):
         addLiqu[0].click()
 
         time.sleep(5)
+
+        addLiqu = driver.find_element(By.XPATH, '//span[text()="Single Asset"]/..')
+        addLiqu.click()
+        
+        time.sleep(2)
+        
         inputs = driver.find_elements(By.TAG_NAME, 'input')
-        inputs[1].send_keys("0.005")
+        inputs[1].send_keys("0.0002")
 
         time.sleep(5)
         button = driver.find_elements(By.XPATH, '//button[text()="Deposit"]')[1]
@@ -223,7 +229,7 @@ def refer(driver):
 
 
 def job_start(private_key):
-    time.sleep(1)
+    time.sleep(random.randint(1, 3))
     thread_name = threading.current_thread().name
     print("-----------线程" + thread_name + "开始执行-----------")
     
@@ -243,6 +249,7 @@ def job_start(private_key):
     time.sleep(random.randint(10, 20))
 
     #领水
+    '''
     claim_deposit(driver)
 
     time.sleep(10)
@@ -257,6 +264,7 @@ def job_start(private_key):
 
     #质押
     stake(driver)
+    '''
                 
     time.sleep(random.randint(25, 35))
 
@@ -268,7 +276,7 @@ def job_start(private_key):
     print("线程" + thread_name + "执行完毕")
 
 with open('wallet.txt', 'r') as f:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         for line in f:
             executor.submit(job_start, line)
             
