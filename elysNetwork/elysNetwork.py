@@ -7,7 +7,6 @@ import concurrent.futures
 import time
 import sys
 import random
-import string
 import threading
 
 
@@ -228,14 +227,13 @@ def refer(driver):
         refer(driver)
 
 
-def job_start(private_key):
+def job_start(private_key, line_number):
     time.sleep(random.randint(1, 3))
     thread_name = threading.current_thread().name
-    print("-----------线程" + thread_name + "开始执行-----------")
+    print("----------->线程" + thread_name + "开始导入第[" + line_number + "]个钱包")
     
-    letters = string.ascii_letters  # 包含所有字母的字符串
-    random_string = ''.join(random.choice(letters) for _ in range(10))
-    wallet = KelprWallet(private_key, random_string, random_string)
+    wallet_name = "keplrWallet" + line_number
+    wallet = KelprWallet(private_key, wallet_name, wallet_name)
     driver = wallet.do_import()
     driver._switch_to.window(driver.window_handles[0])
     driver.maximize_window()
@@ -245,39 +243,43 @@ def job_start(private_key):
             
     #登录
     sign_in(driver)
-
+    
+    print("钱包" + wallet_name + "登录完成")
     time.sleep(random.randint(10, 20))
 
     #领水
-    
     claim_deposit(driver)
 
-    time.sleep(10)
+    time.sleep(random.randint(5, 20))
 
     #交易
     res = swap(driver)
     if res == -1:
         print(private_key + "无余额==================")
         return
-            
+
+    print("钱包" + wallet_name + "swap完成")
     time.sleep(random.randint(20, 35))
 
     #质押
     stake(driver)
-                
+
+    print("钱包" + wallet_name + "质押完成")            
     time.sleep(random.randint(25, 35))
 
     #增加流通性
     add_liquidity(driver)
-
     time.sleep(random.randint(25, 35))
 
-    print("线程" + thread_name + "执行完毕")
+    print("钱包" + wallet_name + "交互完成")
 
+
+line_number = 0
 with open('wallet.txt', 'r') as f:
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         for line in f:
-            executor.submit(job_start, line)
+            line_number += 1
+            executor.submit(job_start, line, str(line_number))
             
     executor.shutdown(wait=True)
     print("脚本执行完毕")
