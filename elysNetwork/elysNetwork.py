@@ -249,7 +249,7 @@ def job_start(private_key):
     time.sleep(random.randint(10, 20))
 
     #领水
-    '''
+    
     claim_deposit(driver)
 
     time.sleep(10)
@@ -264,7 +264,6 @@ def job_start(private_key):
 
     #质押
     stake(driver)
-    '''
                 
     time.sleep(random.randint(25, 35))
 
@@ -276,7 +275,7 @@ def job_start(private_key):
     print("线程" + thread_name + "执行完毕")
 
 with open('wallet.txt', 'r') as f:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         for line in f:
             executor.submit(job_start, line)
             
