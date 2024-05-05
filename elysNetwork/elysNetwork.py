@@ -287,38 +287,3 @@ with open('wallet.txt', 'r') as f:
             
     executor.shutdown(wait=True)
     print("脚本执行完毕")
-
-'''
-wallet = KelprWallet('0x4089c7f7ae1b9a6f8111373fd55318658f040fca6d104d41ab82075a6434f74b', 'Keplr12321431', 'Ker000002')
-driver = wallet.do_import()
-
-#https://elys.bonusblock.io?r=Bx9DYyYP
-driver._switch_to.window(driver.window_handles[0])
-driver.maximize_window()
-#refer()
-
-#登录
-sign_in()
-
-time.sleep(10)
-
-#领水
-claim_deposit()
-
-time.sleep(10)
-
-#交易
-swap()
-
-time.sleep(30)
-
-#质押
-stake()
-    
-time.sleep(30)
-
-#增加流通性
-add_liquidity()
-
-print("脚本执行完毕")
-'''
