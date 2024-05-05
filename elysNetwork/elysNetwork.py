@@ -110,9 +110,10 @@ def swap(driver):
     except Exception as e:
         print(e)
         print("交易时网络异常, 重新执行")
-        clean_chrome_extension()
-        driver.close()
-        driver.switch_to.window(driver.window_handles[0])
+        clean_chrome_extension(driver)
+        if len(driver.window_handles) > 0:
+            driver.close()
+            driver.switch_to.window(driver.window_handles[0])
         time.sleep(3)
         return swap(driver)
 
@@ -228,7 +229,7 @@ def refer(driver):
 
 
 def job_start(private_key, line_number):
-    time.sleep(random.randint(1, 3))
+    #time.sleep(random.randint(60, 180))
     thread_name = threading.current_thread().name
     print("----------->线程" + thread_name + "开始导入第[" + line_number + "]个钱包")
     
@@ -269,17 +270,20 @@ def job_start(private_key, line_number):
 
     #增加流通性
     add_liquidity(driver)
-    time.sleep(random.randint(25, 35))
+    time.sleep(random.randint(25, 50))
 
     print("钱包" + wallet_name + "交互完成")
 
 
 line_number = 0
 with open('wallet.txt', 'r') as f:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         for line in f:
+            if "#" in line:
+                continue
             line_number += 1
             executor.submit(job_start, line, str(line_number))
+            time.sleep(random.randint(50, 120))
             
     executor.shutdown(wait=True)
     print("脚本执行完毕")
